@@ -27,6 +27,7 @@ print('Static adresses found in CheckList: ' + str(staticAdresses))
 
 # For each static adress found in the CheckList, check if it is in the StaticBlockList
 
+# Checks all static adreses in CheckList against StaticBlockList
 for static in staticAdresses:
     staticData = open(StaticBlockList, 'r')
     for line in staticData:
@@ -38,3 +39,6 @@ for static in staticAdresses:
             output = open(OutputFile, 'a')
             output.write(static + '\n')
             output.close()
+
+
+#Checks all ip subnets in CheckList against SubnetBlockList
