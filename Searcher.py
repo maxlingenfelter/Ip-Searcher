@@ -11,28 +11,30 @@ CheckList = 'checkme.txt'
 OutputFile = 'output.txt'
 
 # Clear the output file
-output = open(OutputFile, 'a')
-output. 
+with open(OutputFile, 'a') as f:
+    f.truncate(0)
 
-# Start by checking the CheckList for any static that are in the StaticBlockList
+
+# Check the CheckList for any static that are in the StaticBlockList
 checkData = open(CheckList, 'r')
-staticAdresses = []
+staticAdressesInChecklist = []
+subnetsInCheckList = []
 for line in checkData:
-    # If the lines does not contain a '/' then push it to the static adress array
-    # print('Checking Line:'+str(line))
     if '/' not in line:
-        staticAdresses.append(line)
+        # Remove the newline character from the end of the line before appending it to the list
+        data = line.replace('\n', '')
+        staticAdressesInChecklist.append(data)
+    else:
+        data = line.replace('\n', '')
+        subnetsInCheckList.append(data)
 
-print('Static adresses found in CheckList: ' + str(staticAdresses))
+print('Static adresses found in CheckList: ' + str(staticAdressesInChecklist))
 
 # For each static adress found in the CheckList, check if it is in the StaticBlockList
-
 # Checks all static adreses in CheckList against StaticBlockList
-for static in staticAdresses:
+for static in staticAdressesInChecklist:
     staticData = open(StaticBlockList, 'r')
     for line in staticData:
-        # If the lines does not contain a '/' then push it to the static adress array
-        # print('Checking Line:'+str(line))
         if static in line:
             print('Static adress found in StaticBlockList: ' + str(static))
             # Write the static adress to the output file
@@ -41,4 +43,6 @@ for static in staticAdresses:
             output.close()
 
 
-#Checks all ip subnets in CheckList against SubnetBlockList
+# Checks all ip subnets in CheckList against SubnetBlockList
+
+print('Subnet adresses found in CheckList: ' + str(subnetsInCheckList))
