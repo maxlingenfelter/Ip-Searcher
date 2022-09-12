@@ -2,6 +2,9 @@
 # IPv4 subnets and compare them to a list of Static adresses and subnets and
 # print a list of the adresses it finds that are found to match.
 
+# Imports
+import ipaddress
+
 # Defintions
 StaticBlockList = 'blocked-static.txt'
 SubnetBlockList = 'blocked-subnets.txt'
@@ -26,7 +29,7 @@ for line in checkData:
         data = line.replace('\n', '')
         subnetsInCheckList.append(data)
 
-print('Static adresses found in CheckList: ' + str(staticAdressesInChecklist))
+# print('Static adresses found in CheckList: ' + str(staticAdressesInChecklist))
 
 # For each static adress found in the CheckList, check if it is in the StaticBlockList
 # Checks all static adreses in CheckList against StaticBlockList
@@ -40,7 +43,28 @@ for static in staticAdressesInChecklist:
             output.write(static + '\n')
             output.close()
 
-
+# print('Subnet adresses found in CheckList: ' + str(subnetsInCheckList))
 # Checks all ip subnets in CheckList against SubnetBlockList
+for subnet in subnetsInCheckList:
+    subnetData = open(SubnetBlockList, 'r')
+    for line in subnetData:
+        if subnet in line:
+            print('Subnet found in SubnetBlockList: ' + str(subnet))
+            # Write the subnet to the output file
+            output = open(OutputFile, 'a')
+            output.write(subnet + '\n')
+            output.close()
 
-print('Subnet adresses found in CheckList: ' + str(subnetsInCheckList))
+
+def getIpRange(ip, size):
+    return [str(ip) for ip in ipaddress.IPv4Network(str(ip) + '/' + str(size), False)]
+
+
+# Check the CheckList for any subnets that include static adresses in the StaticBlockList
+for subnet in subnetsInCheckList:
+    staticIpsInSubnet = []
+    subnetIp = subnet.split('/')[0]
+    subnetSize = subnet.split('/')[1]
+    subnetRange = getIpRange(subnetIp, int(subnetSize))
+    print('\nSubnet: ' + str(subnetIp) + ' \nSize: ' +
+          str(subnetSize) + ' \nRange: ' + str(len(subnetRange))+'\n')
