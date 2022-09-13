@@ -46,7 +46,7 @@ for static in staticAdressesInChecklist:
             print('Static adress found in StaticBlockList: ' + str(static))
             # Write the static adress to the output file
             output = open(OutputFile, 'a')
-            output.write(static + '\n')
+            output.write(static)
             output.close()
 
 # print('Subnet adresses found in CheckList: ' + str(subnetsInCheckList))
@@ -71,28 +71,41 @@ def getClassA(ip):
 
 
 # Check the CheckList for any subnets that include static adresses in the StaticBlockList
-# classA = []
-# staticIpsFromCheckListSubnets = []
-# with alive_bar(len(subnetsInCheckList), title='Calculating Subnet Class A\'s', dual_line=True) as bar:
-#     for subnet in subnetsInCheckList:
-#         subnetIp = subnet.split('/')[0]
-#         subnetSize = subnet.split('/')[1]
-#         subnetRange = getIpRange(subnetIp, int(subnetSize))
-#         # Split subnet by '.' and get the last octet
-#         data = getIpRange(subnetIp, int(subnetSize))
-#         for ip in data:
-#             value = getClassA(ip)
-#             bar.text = f'\n-> Checking Class A: {value}, please wait...'
-#             if value not in classA:
-#                 # print('Class A found in SubnetBlockList: ' + str(value))
-#                 classA.append(value)
-#         bar()
+classA = []
+staticIpsFromCheckListSubnets = []
+with alive_bar(len(subnetsInCheckList), title='Calculating Subnet Class A\'s', dual_line=True) as bar:
+    for subnet in subnetsInCheckList:
+        subnetIp = subnet.split('/')[0]
+        subnetSize = subnet.split('/')[1]
+        subnetRange = getIpRange(subnetIp, int(subnetSize))
+        # Split subnet by '.' and get the last octet
+        data = getIpRange(subnetIp, int(subnetSize))
+        for ip in data:
+            value = getClassA(ip)
+            # bar.text = f'\n-> Checking Class A: {value}, please wait...'
+            if value not in classA:
+                # print('Class A found in SubnetBlockList: ' + str(value))
+                classA.append(value)
+        bar()
 
 
 staticIpBlockList = open(StaticBlockList, 'r')
-
-with alive_bar(len(staticIpBlockList.readline()), title='Checking Static Ips', dual_line=True) as bar2:
-    for ip in staticIpBlockList:
-        print('Checking Static Ips: ' + str(ip))
+# Create array from lines in StaticBlockList
+staticIpBlockArray = []
+twoIps = []
+for ip in staticIpBlockList:
+    staticIpBlockArray.append(ip)
+with alive_bar(len(staticIpBlockArray), title='Checking Static Ips', dual_line=True) as bar2:
+    for ip in staticIpBlockArray:
+        # bar2.text = f'\n-> Checking Static Ips: {ip}, please wait...'
+        # Check if the class A of the ip is within the list of class As
+        if getClassA(ip) in classA:
+            # Write the static adress to the output file
+            output = open(OutputFile, 'a')
+            output.write(ip)
+            output.close()
         bar2()
+output = open(OutputFile, 'r')
+print('Found '+len(output.readlines()) +
+      ' blocked ips found within the blocked static ips and subnets')
 print('\nDone!\n\n-> Output file: '+OutputFile)
