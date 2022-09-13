@@ -3,7 +3,11 @@
 # print a list of the adresses it finds that are found to match.
 
 # Imports
+from copyreg import constructor
 import ipaddress
+import time
+import progressbar
+from tqdm import tqdm
 
 # Defintions
 StaticBlockList = 'blocked-static.txt'
@@ -52,7 +56,7 @@ for subnet in subnetsInCheckList:
             print('Subnet found in SubnetBlockList: ' + str(subnet))
             # Write the subnet to the output file
             output = open(OutputFile, 'a')
-            output.write(subnet + '\n')
+            output.write(subnet)
             output.close()
 
 
@@ -60,11 +64,33 @@ def getIpRange(ip, size):
     return [str(ip) for ip in ipaddress.IPv4Network(str(ip) + '/' + str(size), False)]
 
 
+def getClassA(ip):
+    return ip.split('.')[0]+'.'+ip.split('.')[1]+'.'+ip.split('.')[2]
+
+
 # Check the CheckList for any subnets that include static adresses in the StaticBlockList
-for subnet in subnetsInCheckList:
-    staticIpsInSubnet = []
-    subnetIp = subnet.split('/')[0]
-    subnetSize = subnet.split('/')[1]
-    subnetRange = getIpRange(subnetIp, int(subnetSize))
-    print('\nSubnet: ' + str(subnetIp) + ' \nSize: ' +
-          str(subnetSize) + ' \nRange: ' + str(len(subnetRange))+'\n')
+classA = []
+staticIpsFromCheckListSubnets = []
+for i in tqdm(range(100), desc="OVERALL", ascii=False, ncols=100):
+    for subnet in subnetsInCheckList:
+        for i in tqdm(range(100), desc="Class A's For ("+str(subnet)+")", ascii=False, ncols=100):
+            staticIpsInSubnet = []
+            subnetIp = subnet.split('/')[0]
+            subnetSize = subnet.split('/')[1]
+            subnetRange = getIpRange(subnetIp, int(subnetSize))
+            # Split subnet by '.' and get the last octet
+            data = getIpRange(subnetIp, int(subnetSize))
+            for ip in data:
+                value = getClassA(ip)
+                if value not in classA:
+                    # print('Class A found in SubnetBlockList: ' + str(value))
+                    classA.append(value)
+
+staticIpBlockList = open(StaticBlockList, 'r')
+for i in tqdm(range(101), desc="Loading…", ascii=False, ncols=75):
+    for ip in staticIpBlockList:
+        if ip.split('.')[0]+'.'+ip.split('.')[1]+'.'+ip.split('.')[2] in classA:
+            # print('Static adress found in StaticBlockList: ' + str(ip))
+            output = open(OutputFile, 'a')
+            output.write(ip)
+            output.close()
