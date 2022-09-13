@@ -43,10 +43,9 @@ for static in staticAdressesInChecklist:
     staticData = open(StaticBlockList, 'r')
     for line in staticData:
         if static in line:
-            print('Static adress found in StaticBlockList: ' + str(static))
             # Write the static adress to the output file
             output = open(OutputFile, 'a')
-            output.write(static)
+            output.write(static+'\n')
             output.close()
 
 # print('Subnet adresses found in CheckList: ' + str(subnetsInCheckList))
@@ -55,10 +54,9 @@ for subnet in subnetsInCheckList:
     subnetData = open(SubnetBlockList, 'r')
     for line in subnetData:
         if subnet in line:
-            print('Subnet found in SubnetBlockList: ' + str(subnet))
             # Write the subnet to the output file
             output = open(OutputFile, 'a')
-            output.write(subnet)
+            output.write(subnet+'\n')
             output.close()
 
 
@@ -106,6 +104,6 @@ with alive_bar(len(staticIpBlockArray), title='Checking Static Ips', dual_line=T
             output.close()
         bar2()
 output = open(OutputFile, 'r')
-print('Found '+len(output.readlines()) +
+print('Found '+str(len(output.readlines())) +
       ' blocked ips found within the blocked static ips and subnets')
 print('\nDone!\n\n-> Output file: '+OutputFile)
