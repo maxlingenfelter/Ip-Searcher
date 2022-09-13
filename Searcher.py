@@ -8,6 +8,8 @@ import ipaddress
 import time
 import progressbar
 from tqdm import tqdm
+from alive_progress import alive_bar
+
 
 # Defintions
 StaticBlockList = 'blocked-static.txt'
@@ -69,28 +71,28 @@ def getClassA(ip):
 
 
 # Check the CheckList for any subnets that include static adresses in the StaticBlockList
-classA = []
-staticIpsFromCheckListSubnets = []
-for i in tqdm(range(100), desc="OVERALL", ascii=False, ncols=100):
-    for subnet in subnetsInCheckList:
-        for i in tqdm(range(100), desc="Class A's For ("+str(subnet)+")", ascii=False, ncols=100):
-            staticIpsInSubnet = []
-            subnetIp = subnet.split('/')[0]
-            subnetSize = subnet.split('/')[1]
-            subnetRange = getIpRange(subnetIp, int(subnetSize))
-            # Split subnet by '.' and get the last octet
-            data = getIpRange(subnetIp, int(subnetSize))
-            for ip in data:
-                value = getClassA(ip)
-                if value not in classA:
-                    # print('Class A found in SubnetBlockList: ' + str(value))
-                    classA.append(value)
+# classA = []
+# staticIpsFromCheckListSubnets = []
+# with alive_bar(len(subnetsInCheckList), title='Calculating Subnet Class A\'s', dual_line=True) as bar:
+#     for subnet in subnetsInCheckList:
+#         subnetIp = subnet.split('/')[0]
+#         subnetSize = subnet.split('/')[1]
+#         subnetRange = getIpRange(subnetIp, int(subnetSize))
+#         # Split subnet by '.' and get the last octet
+#         data = getIpRange(subnetIp, int(subnetSize))
+#         for ip in data:
+#             value = getClassA(ip)
+#             bar.text = f'\n-> Checking Class A: {value}, please wait...'
+#             if value not in classA:
+#                 # print('Class A found in SubnetBlockList: ' + str(value))
+#                 classA.append(value)
+#         bar()
+
 
 staticIpBlockList = open(StaticBlockList, 'r')
-for i in tqdm(range(101), desc="Loading…", ascii=False, ncols=75):
+
+with alive_bar(len(staticIpBlockList.readline()), title='Checking Static Ips', dual_line=True) as bar2:
     for ip in staticIpBlockList:
-        if ip.split('.')[0]+'.'+ip.split('.')[1]+'.'+ip.split('.')[2] in classA:
-            # print('Static adress found in StaticBlockList: ' + str(ip))
-            output = open(OutputFile, 'a')
-            output.write(ip)
-            output.close()
+        print('Checking Static Ips: ' + str(ip))
+        bar2()
+print('\nDone!\n\n-> Output file: '+OutputFile)
